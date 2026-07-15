@@ -17,18 +17,26 @@ export default defineConfig({
     outDir: 'dist', // matches upload-pages-artifact path in deploy.yml
     rollupOptions: {
       /*
-       * Multi-page. This host carries several landing pages, so no single one
-       * owns the root:
-       *   index.html       -> /        the original self-contained lead form
-       *   tryus/index.html -> /tryus/  the React landing page
+       * Multi-page:
+       *   index.html       -> /        the landing page (alias of /tryus/)
+       *   tryus/index.html -> /tryus/  the landing page, its canonical home
+       *   talk/index.html  -> /talk/   the original self-contained lead form
        *
-       * Adding another landing = a new folder with an index.html plus an entry
-       * here. Shared chunks are split across entries automatically, and the
-       * root page pulls in no JS bundle at all since it has no module script.
+       * / and /tryus/ render the same app. Both carry rel=canonical pointing at
+       * /tryus/, so the duplicate is not indexed twice: this host carries
+       * several landings, so /tryus/ is the stable identity while the root is a
+       * convenience alias that may point elsewhere later.
+       *
+       * Rollup shares the module graph between the two, so the second entry
+       * costs a stub, not a second copy of React. /talk/ pulls in no JS bundle
+       * at all — it has no module script.
+       *
+       * Adding another landing = a new folder with an index.html plus an entry.
        */
       input: {
         main: entry('./index.html'),
         tryus: entry('./tryus/index.html'),
+        talk: entry('./talk/index.html'),
       },
     },
   },

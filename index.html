@@ -1,305 +1,50 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Deedo.ai — Talk to an expert</title>
-  <meta name="description" content="Talk to a Deedo.ai expert — quick lead form." />
-  <style>
-    /* Self-contained styles — no build step, no CDN, no external requests. */
-    :root {
-      --indigo: #4f46e5;
-      --indigo-hover: #4338ca;
-      --gray-900: #111827;
-      --gray-700: #374151;
-      --gray-600: #4b5563;
-      --gray-500: #6b7280;
-      --gray-400: #9ca3af;
-      --gray-300: #d1d5db;
-      --gray-200: #e5e7eb;
-      --gray-100: #f3f4f6;
-      --gray-50: #f9fafb;
-      --red-600: #dc2626;
-      --red-500: #ef4444;
-      --red-400: #f87171;
-      --red-50: #fef2f2;
-      --green-100: #dcfce7;
-      --green-600: #16a34a;
-    }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: linear-gradient(to bottom, var(--gray-50), var(--gray-100));
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      color: var(--gray-900);
-    }
-    .card {
-      width: 100%;
-      max-width: 28rem;
-      background: #fff;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,.05);
-      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px var(--gray-200);
-    }
-    @media (min-width: 640px) { .card { padding: 2rem; } }
-    h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 .25rem; }
-    .subtitle { font-size: .875rem; color: var(--gray-500); margin: 0 0 1.5rem; }
-    .row { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-    @media (min-width: 640px) { .row.two { grid-template-columns: 1fr 1fr; } }
-    .field { margin-top: 1rem; }
-    .field:first-child, .row .field { margin-top: 0; }
-    label.lbl { display: block; font-size: .875rem; font-weight: 500; color: var(--gray-700); margin-bottom: .375rem; }
-    input[type="text"], input[type="email"], input[type="tel"] {
-      display: block; width: 100%; border: 0; border-radius: .5rem;
-      padding: .625rem .75rem; font-size: 1rem; color: var(--gray-900);
-      box-shadow: inset 0 0 0 1px var(--gray-300);
-      transition: box-shadow .15s;
-    }
-    @media (min-width: 640px) { input[type="text"], input[type="email"], input[type="tel"] { font-size: .875rem; } }
-    input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--indigo); }
-    input[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--red-400); }
-    input[aria-invalid="true"]:focus { box-shadow: inset 0 0 0 2px var(--red-500); }
-    .err { margin: .25rem 0 0; font-size: .75rem; color: var(--red-600); }
-    .consent { margin-top: 1.25rem; display: flex; align-items: flex-start; gap: .75rem; }
-    .consent input { margin-top: .15rem; height: 1.25rem; width: 1.25rem; flex-shrink: 0; accent-color: var(--indigo); }
-    .consent label { font-size: .75rem; line-height: 1.25rem; color: var(--gray-600); }
-    .consent a { color: var(--gray-600); }
-    .consent-err { margin: .375rem 0 0 2rem; font-size: .75rem; color: var(--red-600); }
-    .form-err { margin-top: 1rem; border-radius: .5rem; background: var(--red-50); padding: .5rem .75rem; font-size: .875rem; color: #b91c1c; }
-    button {
-      margin-top: 1.5rem; width: 100%; border: 0; border-radius: .5rem;
-      background: var(--indigo); color: #fff; font-size: .875rem; font-weight: 600;
-      padding: .625rem 1rem; cursor: pointer; transition: background .15s;
-    }
-    button:hover:not(:disabled) { background: var(--indigo-hover); }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    button:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
-    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; } /* honeypot */
-    .success { text-align: center; }
-    .success .badge {
-      margin: 0 auto 1rem; height: 3rem; width: 3rem; border-radius: 9999px;
-      background: var(--green-100); display: flex; align-items: center; justify-content: center;
-    }
-    .success .badge svg { height: 1.5rem; width: 1.5rem; color: var(--green-600); }
-    .success h1 { font-size: 1.125rem; }
-    .success p { font-size: .875rem; color: var(--gray-600); margin-top: .5rem; }
-  </style>
-</head>
-<body>
-  <main class="card" id="app">
-    <form id="lead-form" novalidate>
-      <h1>Talk to an expert</h1>
-      <p class="subtitle">Tell us how to reach you and we'll take it from there.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B2049" />
 
-      <div class="row two">
-        <div class="field">
-          <label class="lbl" for="firstname">First name</label>
-          <input id="firstname" name="firstname" type="text" autocomplete="given-name" />
-          <p class="err" id="firstname-err" hidden></p>
-        </div>
-        <div class="field">
-          <label class="lbl" for="lastname">Last name</label>
-          <input id="lastname" name="lastname" type="text" autocomplete="family-name" />
-          <p class="err" id="lastname-err" hidden></p>
-        </div>
-      </div>
+    <title>Deedo — Put an AI Concierge on Your Next Listing</title>
+    <meta
+      name="description"
+      content="Upload your property disclosures, generate a QR code, and capture verified leads at your open house. Deedo's AI answers buyer questions using only your approved documents."
+    />
+    <!--
+      This page is served at BOTH / and /tryus/. Canonical points at /tryus/ so
+      search engines index one URL, not two identical ones: /tryus/ is the
+      landing's stable home (this host carries several landings, so the root is
+      a convenience alias that may point elsewhere later).
+    -->
+    <link rel="canonical" href="https://land.deedo.ai/tryus/" />
 
-      <div class="field">
-        <label class="lbl" for="email">Email</label>
-        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" />
-        <p class="err" id="email-err" hidden></p>
-      </div>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
 
-      <div class="field">
-        <label class="lbl" for="phone">Mobile phone</label>
-        <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" />
-        <p class="err" id="phone-err" hidden></p>
-      </div>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Deedo — AI for Real Estate Listings" />
+    <meta
+      property="og:description"
+      content="An AI concierge on every listing. Grounded in your documents, not the open web."
+    />
+    <!-- og:image must be an absolute URL; scrapers do not resolve relative paths. -->
+    <meta property="og:url" content="https://land.deedo.ai/tryus/" />
+    <meta property="og:image" content="https://land.deedo.ai/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://land.deedo.ai/og-image.png" />
 
-      <!-- Honeypot: hidden from humans; bots that fill it are dropped. -->
-      <div class="hp" aria-hidden="true">
-        <label for="company_website">Company website</label>
-        <input id="company_website" name="company_website" type="text" tabindex="-1" autocomplete="off" />
-      </div>
-
-      <div class="consent">
-        <input id="smsConsent" name="smsConsent" type="checkbox" aria-describedby="smsConsent-err" />
-        <label for="smsConsent" id="consent-label">
-          By checking this box, you agree to receive automated promotional and informational text
-          messages from Deedo.ai at the phone number provided. Message frequency varies. Msg &amp; data
-          rates may apply. Reply STOP to cancel, HELP for help.
-          See our <a href="https://app.deedo.ai/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://app.deedo.ai/terms-of-use" target="_blank" rel="noopener">Terms</a>.
-        </label>
-      </div>
-      <p class="consent-err" id="smsConsent-err" hidden></p>
-
-      <p class="form-err" id="form-err" hidden></p>
-
-      <button type="submit" id="submit-btn">Get started</button>
-    </form>
-  </main>
-
-  <script>
-    // ---- Config (public identifiers — edit these) --------------------------
-    var HUBSPOT = {
-      portalId: '21197737',
-
-      // "deedo 2026 July Contact Form". Verified by rendering it: this is the
-      // ONLY form that defines sms_opt_in.
-      //
-      // Previously 08426f5c ("New talk to an expert form"), which has NO
-      // sms_opt_in field — it is a generic multi-step contact form
-      // (firstname/lastname/email/phone/company/employees/jobtitle). HubSpot
-      // SILENTLY IGNORES fields a form does not define, so posting sms_opt_in
-      // there returned 200, created the contact, and dropped the consent on the
-      // floor. No error, no trace — every lead captured here had no TCPA audit
-      // trail. Only missing *required* fields produce a 400.
-      formGuid: 'fa52f5f8-7d09-4103-921c-0146c0322cef',
-
-      // This form uses `mobilephone`, not `phone`. Posting `phone` alone 400s
-      // (REQUIRED_FIELD), and consent applies to the mobile number anyway.
-      phoneProperty: 'mobilephone',
-
-      smsConsentProperty: 'sms_opt_in',
-      smsConsentTimestampProperty: 'sms_opt_in_timestamp', // optional; leave '' to skip
-      smsConsentTextVersionProperty: 'sms_consent_text_version' // optional
-    };
-
-    // Must stay character-for-character identical to the form's own checkbox
-    // label in HubSpot, and to SMS_CONSENT_TEXT in src/lib/hubspot.ts.
-    var SMS_CONSENT_TEXT =
-      'By checking this box, you agree to receive automated promotional and informational text ' +
-      'messages from Deedo.ai at the phone number provided. Message frequency varies. Msg & data ' +
-      'rates may apply. Reply STOP to cancel, HELP for help.';
-
-    // Bump whenever SMS_CONSENT_TEXT changes, so each contact stays tied to the
-    // exact wording they agreed to.
-    var SMS_CONSENT_TEXT_VERSION = 'v1-2026-07';
-
-    // ---- Helpers -----------------------------------------------------------
-    function $(id) { return document.getElementById(id); }
-    function readUtk() {
-      var m = document.cookie.match(/(?:^|;\s*)hubspotutk=([^;]+)/);
-      return m ? decodeURIComponent(m[1]) : undefined;
-    }
-    function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
-    // North America (+1) only — Deedo operates in the US and Canada, and the SMS
-    // consent applies to the number given. 10 digits, or 11 with a leading 1.
-    function isPhone(v) {
-      var d = v.replace(/\D/g, '');
-      return d.length === 10 || (d.length === 11 && d.charAt(0) === '1');
-    }
-    function setErr(id, msg) {
-      var input = $(id), el = $(id + '-err');
-      if (msg) { el.textContent = msg; el.hidden = false; if (input) input.setAttribute('aria-invalid', 'true'); }
-      else { el.hidden = true; if (input) input.removeAttribute('aria-invalid'); }
-    }
-
-    // ---- Submit ------------------------------------------------------------
-    var form = $('lead-form');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      $('form-err').hidden = true;
-
-      var vals = {
-        firstname: $('firstname').value,
-        lastname: $('lastname').value,
-        email: $('email').value,
-        phone: $('phone').value,
-        smsConsent: $('smsConsent').checked
-      };
-
-      // Validate
-      var ok = true;
-      setErr('firstname', vals.firstname.trim() ? '' : 'First name is required.'); ok = ok && !!vals.firstname.trim();
-      setErr('lastname', vals.lastname.trim() ? '' : 'Last name is required.'); ok = ok && !!vals.lastname.trim();
-      setErr('email', isEmail(vals.email) ? '' : 'Enter a valid email address.'); ok = ok && isEmail(vals.email);
-      setErr('phone', isPhone(vals.phone) ? '' : 'Enter a valid US or Canadian mobile number (10 digits).'); ok = ok && isPhone(vals.phone);
-      setErr('smsConsent', vals.smsConsent ? '' : 'You must agree to receive text messages to continue.');
-      ok = ok && vals.smsConsent;
-      if (!ok) return;
-
-      // Honeypot: silently succeed for bots, submit nothing.
-      if ($('company_website').value) { showSuccess(); return; }
-
-      var btn = $('submit-btn');
-      btn.disabled = true; btn.textContent = 'Submitting…';
-
-      var fields = [
-        { name: 'firstname', value: vals.firstname.trim() },
-        { name: 'lastname', value: vals.lastname.trim() },
-        { name: 'email', value: vals.email.trim() },
-        { name: HUBSPOT.phoneProperty, value: vals.phone.trim() },
-        { name: HUBSPOT.smsConsentProperty, value: String(vals.smsConsent) }
-      ];
-      if (HUBSPOT.smsConsentTimestampProperty && vals.smsConsent) {
-        fields.push({ name: HUBSPOT.smsConsentTimestampProperty, value: new Date().toISOString() });
-      }
-      if (HUBSPOT.smsConsentTextVersionProperty && vals.smsConsent) {
-        fields.push({ name: HUBSPOT.smsConsentTextVersionProperty, value: SMS_CONSENT_TEXT_VERSION });
-      }
-
-      var utk = readUtk();
-      var body = {
-        fields: fields,
-        context: {
-          pageUri: window.location.href,
-          pageName: document.title
-        },
-        legalConsentOptions: {
-          consent: { consentToProcess: true, text: SMS_CONSENT_TEXT }
-        }
-      };
-      if (utk) body.context.hutk = utk;
-
-      var endpoint = 'https://api.hsforms.com/submissions/v3/integration/submit/' +
-        encodeURIComponent(HUBSPOT.portalId) + '/' + encodeURIComponent(HUBSPOT.formGuid);
-
-      fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      }).then(function (res) {
-        if (res.ok) { showSuccess(); return; }
-        return res.json().catch(function () { return null; }).then(function (payload) {
-          console.error('[HubSpot] submission error', res.status, payload);
-          fail(res.status === 400
-            ? 'We could not process your details. Please check the fields and try again.'
-            : 'Something went wrong on our end. Please try again in a moment.');
-        });
-      }).catch(function (err) {
-        console.error('[HubSpot] network error', err);
-        fail('Network error. Please check your connection and try again.');
-      });
-
-      function fail(msg) {
-        btn.disabled = false; btn.textContent = 'Get started';
-        var fe = $('form-err'); fe.textContent = msg; fe.hidden = false;
-      }
-    });
-
-    // Clear a field's error as the user corrects it.
-    ['firstname', 'lastname', 'email', 'phone'].forEach(function (id) {
-      $(id).addEventListener('input', function () { setErr(id, ''); });
-    });
-    $('smsConsent').addEventListener('change', function () { setErr('smsConsent', ''); });
-
-    function showSuccess() {
-      $('app').innerHTML =
-        '<div class="success">' +
-        '<div class="badge"><svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">' +
-        '<path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4l3.3 3.3 6.8-6.8a1 1 0 011.4 0z" clip-rule="evenodd"/>' +
-        '</svg></div>' +
-        '<h1>Thanks — you\'re all set.</h1>' +
-        '<p>A Deedo.ai expert will reach out shortly. Watch for a confirmation text at the number you provided.</p>' +
-        '</div>';
-    }
-  </script>
-</body>
+    <!--
+      Fonts: Fraunces (editorial display) + IBM Plex Sans/Mono (technical body).
+      preconnect first so the font CSS request isn't stuck behind DNS+TLS.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..800,0..100,0..1&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
