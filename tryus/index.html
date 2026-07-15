@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B2049" />
+
+    <title>Deedo — Put an AI Concierge on Your Next Listing</title>
+    <meta
+      name="description"
+      content="Upload your property disclosures, generate a QR code, and capture verified leads at your open house. Deedo's AI answers buyer questions using only your approved documents."
+    />
+    <link rel="canonical" href="https://land.deedo.ai/tryus/" />
+
+    <!--
+      Root-absolute, NOT "./" — this page is served from /tryus/, where a
+      relative href would resolve to /tryus/favicon.ico and 404.
+    -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Deedo — AI for Real Estate Listings" />
+    <meta
+      property="og:description"
+      content="An AI concierge on every listing. Grounded in your documents, not the open web."
+    />
+    <!-- og:image must be an absolute URL; scrapers do not resolve relative paths. -->
+    <meta property="og:url" content="https://land.deedo.ai/tryus/" />
+    <meta property="og:image" content="https://land.deedo.ai/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://land.deedo.ai/og-image.png" />
+
+    <!--
+      Fonts: Fraunces (editorial display) + IBM Plex Sans/Mono (technical body).
+      preconnect first so the font CSS request isn't stuck behind DNS+TLS.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..800,0..100,0..1&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

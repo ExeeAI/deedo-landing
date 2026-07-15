@@ -600,10 +600,10 @@ export default function Landing(): React.JSX.Element {
             <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">
               deedo.ai
             </a>
-            <a href="https://deedo.ai/privacy" target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">
+            <a href="https://app.deedo.ai/privacy-policy" target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">
               Privacy
             </a>
-            <a href="https://deedo.ai/terms" target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">
+            <a href="https://app.deedo.ai/terms-of-use" target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">
               Terms
             </a>
           </div>

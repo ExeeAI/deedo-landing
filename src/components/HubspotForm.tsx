@@ -76,9 +76,10 @@ function resolveConfig(override?: Partial<HubspotConfig>): HubspotConfig {
  */
 function legalUrls(): { privacy: string; terms: string } {
   const e = env();
+  // Fallbacks are the real, verified pages (both 200) — not placeholders.
   return {
-    privacy: e.VITE_PRIVACY_URL || 'https://deedo.ai/privacy',
-    terms: e.VITE_TERMS_URL || 'https://deedo.ai/terms',
+    privacy: e.VITE_PRIVACY_URL || 'https://app.deedo.ai/privacy-policy',
+    terms: e.VITE_TERMS_URL || 'https://app.deedo.ai/terms-of-use',
   };
 }
 
