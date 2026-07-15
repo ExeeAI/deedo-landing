@@ -149,15 +149,38 @@
     // ---- Config (public identifiers — edit these) --------------------------
     var HUBSPOT = {
       portalId: '21197737',
-      formGuid: '08426f5c-a5e8-47d4-bf9e-c12d4bc36fec', // replace with the dedicated form's GUID
+
+      // "deedo 2026 July Contact Form". Verified by rendering it: this is the
+      // ONLY form that defines sms_opt_in.
+      //
+      // Previously 08426f5c ("New talk to an expert form"), which has NO
+      // sms_opt_in field — it is a generic multi-step contact form
+      // (firstname/lastname/email/phone/company/employees/jobtitle). HubSpot
+      // SILENTLY IGNORES fields a form does not define, so posting sms_opt_in
+      // there returned 200, created the contact, and dropped the consent on the
+      // floor. No error, no trace — every lead captured here had no TCPA audit
+      // trail. Only missing *required* fields produce a 400.
+      formGuid: 'fa52f5f8-7d09-4103-921c-0146c0322cef',
+
+      // This form uses `mobilephone`, not `phone`. Posting `phone` alone 400s
+      // (REQUIRED_FIELD), and consent applies to the mobile number anyway.
+      phoneProperty: 'mobilephone',
+
       smsConsentProperty: 'sms_opt_in',
-      smsConsentTimestampProperty: 'sms_opt_in_timestamp' // optional; leave '' to skip
+      smsConsentTimestampProperty: 'sms_opt_in_timestamp', // optional; leave '' to skip
+      smsConsentTextVersionProperty: 'sms_consent_text_version' // optional
     };
 
+    // Must stay character-for-character identical to the form's own checkbox
+    // label in HubSpot, and to SMS_CONSENT_TEXT in src/lib/hubspot.ts.
     var SMS_CONSENT_TEXT =
       'By checking this box, you agree to receive automated promotional and informational text ' +
       'messages from Deedo.ai at the phone number provided. Message frequency varies. Msg & data ' +
       'rates may apply. Reply STOP to cancel, HELP for help.';
+
+    // Bump whenever SMS_CONSENT_TEXT changes, so each contact stays tied to the
+    // exact wording they agreed to.
+    var SMS_CONSENT_TEXT_VERSION = 'v1-2026-07';
 
     // ---- Helpers -----------------------------------------------------------
     function $(id) { return document.getElementById(id); }
@@ -166,7 +189,12 @@
       return m ? decodeURIComponent(m[1]) : undefined;
     }
     function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
-    function isPhone(v) { return v.replace(/\D/g, '').length >= 10; }
+    // North America (+1) only — Deedo operates in the US and Canada, and the SMS
+    // consent applies to the number given. 10 digits, or 11 with a leading 1.
+    function isPhone(v) {
+      var d = v.replace(/\D/g, '');
+      return d.length === 10 || (d.length === 11 && d.charAt(0) === '1');
+    }
     function setErr(id, msg) {
       var input = $(id), el = $(id + '-err');
       if (msg) { el.textContent = msg; el.hidden = false; if (input) input.setAttribute('aria-invalid', 'true'); }
@@ -192,7 +220,7 @@
       setErr('firstname', vals.firstname.trim() ? '' : 'First name is required.'); ok = ok && !!vals.firstname.trim();
       setErr('lastname', vals.lastname.trim() ? '' : 'Last name is required.'); ok = ok && !!vals.lastname.trim();
       setErr('email', isEmail(vals.email) ? '' : 'Enter a valid email address.'); ok = ok && isEmail(vals.email);
-      setErr('phone', isPhone(vals.phone) ? '' : 'Enter a valid phone number (10+ digits).'); ok = ok && isPhone(vals.phone);
+      setErr('phone', isPhone(vals.phone) ? '' : 'Enter a valid US or Canadian mobile number (10 digits).'); ok = ok && isPhone(vals.phone);
       setErr('smsConsent', vals.smsConsent ? '' : 'You must agree to receive text messages to continue.');
       ok = ok && vals.smsConsent;
       if (!ok) return;
@@ -207,11 +235,14 @@
         { name: 'firstname', value: vals.firstname.trim() },
         { name: 'lastname', value: vals.lastname.trim() },
         { name: 'email', value: vals.email.trim() },
-        { name: 'phone', value: vals.phone.trim() },
+        { name: HUBSPOT.phoneProperty, value: vals.phone.trim() },
         { name: HUBSPOT.smsConsentProperty, value: String(vals.smsConsent) }
       ];
       if (HUBSPOT.smsConsentTimestampProperty && vals.smsConsent) {
         fields.push({ name: HUBSPOT.smsConsentTimestampProperty, value: new Date().toISOString() });
+      }
+      if (HUBSPOT.smsConsentTextVersionProperty && vals.smsConsent) {
+        fields.push({ name: HUBSPOT.smsConsentTextVersionProperty, value: SMS_CONSENT_TEXT_VERSION });
       }
 
       var utk = readUtk();
