@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+*.local
+
+# TypeScript incremental build cache (tsc -b), regenerated on every build.
+*.tsbuildinfo
+
+# Per-developer tool permissions; .claude/launch.json IS shared.
+.claude/settings.local.json

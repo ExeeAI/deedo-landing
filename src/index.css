@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Deedo.ai landing — "architectural drawing set".
+ *
+ * RAW HTML + FORMS API PATH: HubspotForm.tsx renders its own markup, so there
+ * are no HubSpot .hs-* classes to override. Every utility lives on our own
+ * elements; this file only carries the base layer, textures, and reveal motion.
+ */
+
+@layer base {
+  :root {
+    /* Blueprint grid + paper grain, referenced by the utilities below. */
+    --rule: rgba(23, 21, 18, 0.12);
+    --grid: rgba(30, 74, 60, 0.055);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* The hero CTA jumps to #demo; keep the section marker clear of the top. */
+    scroll-padding-top: 2rem;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+    /* Fraunces is optically sized; nudge it toward the warmer, softer axis. */
+    font-variation-settings: 'SOFT' 20;
+  }
+
+  ::selection {
+    @apply bg-navy text-paper;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    font-variation-settings: 'SOFT' 32, 'WONK' 1;
+  }
+}
+
+@layer components {
+  /* Graph-paper grid — the drafting-table surface. */
+  .surface-grid {
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /* Paper grain. An SVG turbulence overlay keeps the flat fill from looking
+     digital — the whole conceit is printed stock, not a screen. */
+  .surface-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+  }
+
+  /* Mono section marker, e.g. "02 — TRUST". */
+  .marker {
+    @apply font-mono text-[11px] uppercase tracking-survey text-ink-mute;
+  }
+
+  .rule {
+    @apply border-ink/10;
+  }
+}
+
+@layer utilities {
+  /* Scroll-reveal: opt in with data-reveal; useReveal() adds .is-revealed. */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Honour reduced-motion: reveal everything immediately, kill the ambient loops. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
