@@ -55,12 +55,22 @@ const gtmHead = `
       .fdesc .num { position: static; margin: 0 auto 8px; }
     }
     /* --- Lead-capture sheet (added) --- */
+    .htw-form-sheet { scroll-margin-top: 14px; }
     .htw-form-sheet h2 { font-size: 23px; font-weight: 800; letter-spacing: -.5px;
       color: var(--ink); margin: 0 0 4px; }
     .htw-form-sheet .kick { font-size: 10.5px; font-weight: 800; letter-spacing: 1.3px;
       text-transform: uppercase; color: var(--brand); }
     .htw-form-sheet p.sub { font-size: 12px; color: var(--ink-soft); margin: 4px 0 16px; }
     .htw-form-sheet .hs-form-frame { max-width: 560px; }
+    /* --- CTA buttons that jump to the form (added) --- */
+    .htw-cta { display: inline-block; margin-top: 14px; background: #fff; color: var(--brand);
+      font-weight: 800; font-size: 12.5px; padding: 10px 18px; border-radius: 24px;
+      text-decoration: none; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,.22); }
+    .htw-cta:hover { filter: brightness(1.04); }
+    .htw-foot-btn { display: inline-block; margin-top: 11px; background: #ffd27a; color: #5a3d0e;
+      font-weight: 800; font-size: 12px; padding: 9px 18px; border-radius: 22px;
+      text-decoration: none; }
+    .htw-foot-btn:hover { filter: brightness(1.04); }
   </style>
 `;
 html = html.replace('</head>', `${gtmHead}\n</head>`);
@@ -74,11 +84,33 @@ const gtmNoscript = `
 `;
 html = html.replace(/<body([^>]*)>/, `<body$1>\n${gtmNoscript}`);
 
+// --- CTAs to the form (the pamphlet has none; a 4,500px page buries it) ------
+// Hero button: add after the "1st listing FREE" badge inside the hero.
+const heroCta =
+  `<a href="#htw-form" class="htw-cta"` +
+  ` onclick="window.dataLayer&&window.dataLayer.push({event:'cta_click',cta:'talk_to_expert',location:'howitworks_hero'})">` +
+  `Talk to an expert &rarr;</a>`;
+html = html.replace(
+  '<div class="badge">1st listing FREE</div>',
+  `<div class="badge">1st listing FREE</div>\n    ${heroCta}`
+);
+
+// Closing band: turn the final "Put a Deedo QR code…" band into a CTA.
+const footBtn =
+  `<a href="#htw-form" class="htw-foot-btn"` +
+  ` onclick="window.dataLayer&&window.dataLayer.push({event:'cta_click',cta:'talk_to_expert',location:'howitworks_footer'})">` +
+  `Get started free &rarr;</a>`;
+// Append the button just before the p2-foot band's closing tag.
+html = html.replace(
+  /(<div class="p2-foot">[\s\S]*?<\/span>)(\s*<\/div>)/,
+  `$1\n    ${footBtn}$2`
+);
+
 // --- 3. Lead form as a third sheet, before </body> --------------------------
 // Native HubSpot embed of fa52f5f8 — the form that defines sms_opt_in, so
 // consent is captured correctly and HubSpot's own spam protection applies.
 const formSheet = `
-  <div class="page htw-form-sheet">
+  <div id="htw-form" class="page htw-form-sheet">
     <div class="kick">Ready when you are</div>
     <h2>Put Deedo on your next listing</h2>
     <p class="sub">Your first listing is free — no credit card. Talk to an expert and we'll get you set up.</p>
