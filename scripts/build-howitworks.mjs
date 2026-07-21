@@ -106,10 +106,12 @@ html = html.replace(
   `<div class="badge">1st listing FREE</div>\n    ${heroCta}`
 );
 
-// Closing band: turn the final "Put a Deedo QR code…" band into a CTA.
+// Closing band CTA -> the main site (sign-up), not the on-page form. The hero's
+// "Talk to an expert" covers the form; this one sends ready buyers to deedo.ai.
 const footBtn =
-  `<a href="#htw-form" class="htw-foot-btn"` +
-  ` onclick="window.dataLayer&&window.dataLayer.push({event:'cta_click',cta:'talk_to_expert',location:'howitworks_footer'})">` +
+  `<a href="https://deedo.ai" target="_blank" rel="noopener"` +
+  ` class="htw-foot-btn"` +
+  ` onclick="window.dataLayer&&window.dataLayer.push({event:'cta_click',cta:'get_started',location:'howitworks_footer',destination:'deedo.ai'})">` +
   `Get started free &rarr;</a>`;
 // Append the button just before the p2-foot band's closing tag.
 html = html.replace(
