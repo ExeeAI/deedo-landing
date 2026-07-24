@@ -131,8 +131,9 @@ export async function submitLead(
   if (config.smsConsentTimestampPropertyName && fields.smsConsent) {
     fieldEntries.push({
       name: config.smsConsentTimestampPropertyName,
-      // HubSpot datetime properties accept ISO 8601.
-      value: new Date().toISOString(),
+      // HubSpot date/datetime FORM fields want epoch milliseconds — an ISO
+      // string is silently dropped and the property stays empty.
+      value: String(Date.now()),
     });
   }
 

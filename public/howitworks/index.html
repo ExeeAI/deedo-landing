@@ -623,7 +623,7 @@
         smsConsentProperty: 'sms_opt_in',
         smsConsentTimestampProperty: 'sms_opt_in_timestamp',
         smsConsentTextVersionProperty: 'sms_consent_text_version',
-        leadEndpoint: 'https://broken-rice-f4ac.anujks.workers.dev'   // first-party proxy; empty => direct
+        leadEndpoint: ''   // first-party proxy; empty => direct
       };
       var SMS_CONSENT_TEXT =
         'By checking this box, you agree to receive automated promotional and informational text ' +
@@ -677,7 +677,9 @@
           { name: HUBSPOT.phoneProperty, value: vals.phone.trim() },
           { name: HUBSPOT.smsConsentProperty, value: String(vals.smsConsent) }
         ];
-        if (HUBSPOT.smsConsentTimestampProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTimestampProperty, value: new Date().toISOString() });
+        // HubSpot date/datetime form fields want epoch MILLISECONDS, not ISO
+        // text — an ISO string is silently dropped, leaving the field empty.
+        if (HUBSPOT.smsConsentTimestampProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTimestampProperty, value: String(new Date().getTime()) });
         if (HUBSPOT.smsConsentTextVersionProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTextVersionProperty, value: SMS_CONSENT_TEXT_VERSION });
 
         var utk = readUtk();

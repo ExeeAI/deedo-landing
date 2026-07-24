@@ -267,7 +267,9 @@ const formSheet = `
           { name: HUBSPOT.phoneProperty, value: vals.phone.trim() },
           { name: HUBSPOT.smsConsentProperty, value: String(vals.smsConsent) }
         ];
-        if (HUBSPOT.smsConsentTimestampProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTimestampProperty, value: new Date().toISOString() });
+        // HubSpot date/datetime form fields want epoch MILLISECONDS, not ISO
+        // text — an ISO string is silently dropped, leaving the field empty.
+        if (HUBSPOT.smsConsentTimestampProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTimestampProperty, value: String(new Date().getTime()) });
         if (HUBSPOT.smsConsentTextVersionProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTextVersionProperty, value: SMS_CONSENT_TEXT_VERSION });
 
         var utk = readUtk();
