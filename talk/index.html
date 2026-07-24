@@ -168,7 +168,10 @@
 
       smsConsentProperty: 'sms_opt_in',
       smsConsentTimestampProperty: 'sms_opt_in_timestamp', // optional; leave '' to skip
-      smsConsentTextVersionProperty: 'sms_consent_text_version' // optional
+      smsConsentTextVersionProperty: 'sms_consent_text_version', // optional
+      // First-party proxy (see proxy/) so ad blockers / tracking prevention that
+      // block api.hsforms.com can't kill the submission. '' => post direct.
+      leadEndpoint: 'https://broken-rice-f4ac.anujks.workers.dev'
     };
 
     // Must stay character-for-character identical to the form's own checkbox
@@ -258,8 +261,11 @@
       };
       if (utk) body.context.hutk = utk;
 
-      var endpoint = 'https://api.hsforms.com/submissions/v3/integration/submit/' +
-        encodeURIComponent(HUBSPOT.portalId) + '/' + encodeURIComponent(HUBSPOT.formGuid);
+      // Prefer the first-party proxy (blocker-proof); fall back to HubSpot direct.
+      var endpoint = HUBSPOT.leadEndpoint
+        ? HUBSPOT.leadEndpoint + '?portalId=' + encodeURIComponent(HUBSPOT.portalId) + '&formGuid=' + encodeURIComponent(HUBSPOT.formGuid)
+        : 'https://api.hsforms.com/submissions/v3/integration/submit/' +
+          encodeURIComponent(HUBSPOT.portalId) + '/' + encodeURIComponent(HUBSPOT.formGuid);
 
       fetch(endpoint, {
         method: 'POST',
