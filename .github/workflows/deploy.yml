@@ -48,6 +48,8 @@ jobs:
           # right default for preview/fork builds.
           VITE_GTM_ID: ${{ vars.GTM_ID }}
           VITE_GA4_ID: ${{ vars.GA4_ID }}
+          # First-party lead proxy (see proxy/). Unset => forms post to HubSpot direct.
+          VITE_LEAD_ENDPOINT: ${{ vars.LEAD_ENDPOINT }}
           # Vite base path. A PROJECT page (user.github.io/<repo>/) must build with
           # base='/<repo>/' or every asset URL 404s. Set the BASE_PATH repo variable
           # to '/<repo>/' for a project page; leave it unset for a user/org page,

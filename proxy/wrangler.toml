@@ -1,0 +1,26 @@
+# Cloudflare Worker config for the lead-form proxy.
+# Deploy:  cd proxy && npx wrangler deploy
+# (First run: npx wrangler login)
+
+name = "deedo-lead-proxy"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+# --- Custom domain route -----------------------------------------------------
+# Bind the Worker to a first-party host so blockers can't match it. Requires the
+# deedo.ai zone to be on Cloudflare. Pick ONE of these approaches:
+#
+# A) A dedicated subdomain (simplest — recommended). Uncomment and deploy; the
+#    form endpoint becomes https://forms.deedo.ai/lead
+# routes = [
+#   { pattern = "forms.deedo.ai/lead", custom_domain = true }
+# ]
+#
+# B) A path on the apex/marketing site, if deedo.ai is proxied through Cloudflare:
+# routes = [
+#   { pattern = "deedo.ai/api/lead", zone_name = "deedo.ai" }
+# ]
+#
+# Until a route is set, `wrangler deploy` still gives you a
+# https://deedo-lead-proxy.<your-subdomain>.workers.dev URL you can test with
+# (it works, but a *.workers.dev host is less clearly first-party).

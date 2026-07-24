@@ -65,6 +65,7 @@ function resolveConfig(override?: Partial<HubspotConfig>): HubspotConfig {
     smsConsentTextVersionPropertyName:
       override?.smsConsentTextVersionPropertyName ??
       e.VITE_HUBSPOT_SMS_CONSENT_VERSION_PROPERTY,
+    leadEndpoint: override?.leadEndpoint ?? e.VITE_LEAD_ENDPOINT,
   };
 }
 

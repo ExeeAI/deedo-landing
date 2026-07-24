@@ -41,6 +41,12 @@ export interface HubspotConfig {
    * silently rewrites history for every contact who agreed to the old language.
    */
   smsConsentTextVersionPropertyName?: string;
+  /**
+   * Optional first-party proxy endpoint (see proxy/). When set, the form POSTs
+   * here instead of api.hsforms.com so ad blockers can't kill the submission;
+   * the proxy forwards to HubSpot server-side. Empty => post to HubSpot direct.
+   */
+  leadEndpoint?: string;
 }
 
 export interface LeadFields {
@@ -100,9 +106,15 @@ export async function submitLead(
   fields: LeadFields,
   opts?: { pageUri?: string; pageName?: string; signal?: AbortSignal }
 ): Promise<SubmitResult> {
-  const endpoint = `https://api.hsforms.com/submissions/v3/integration/submit/${encodeURIComponent(
-    config.portalId
-  )}/${encodeURIComponent(config.formGuid)}`;
+  // Prefer a first-party proxy (see proxy/) when configured, so ad blockers that
+  // block api.hsforms.com can't kill the submission. Falls back to HubSpot
+  // direct when VITE_LEAD_ENDPOINT is unset.
+  const leadEndpoint = config.leadEndpoint?.trim();
+  const endpoint = leadEndpoint
+    ? `${leadEndpoint}?portalId=${encodeURIComponent(config.portalId)}&formGuid=${encodeURIComponent(config.formGuid)}`
+    : `https://api.hsforms.com/submissions/v3/integration/submit/${encodeURIComponent(
+        config.portalId
+      )}/${encodeURIComponent(config.formGuid)}`;
 
   const consentPropertyName = config.smsConsentPropertyName ?? 'sms_opt_in';
 
@@ -188,9 +200,14 @@ export async function submitLead(
     if ((err as Error)?.name === 'AbortError') {
       return { ok: false, error: 'Submission cancelled.' };
     }
+    // fetch() only throws on a network-level failure. Since the endpoint is
+    // reachable from a working browser, in practice this is an ad blocker /
+    // privacy setting blocking the request. Say so — a generic "check your
+    // connection" sends people down the wrong path.
     return {
       ok: false,
-      error: 'Network error. Please check your connection and try again.',
+      error:
+        'We could not submit the form — an ad blocker or privacy setting may be blocking it. Turn it off and try again, or sign up directly at deedo.ai.',
       raw: err,
     };
   }

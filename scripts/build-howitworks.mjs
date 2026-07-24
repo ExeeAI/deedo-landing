@@ -37,6 +37,11 @@ const GTM_ID = 'GTM-MSNV33KS';
 const PORTAL_ID = '21197737';
 const FORM_GUID = 'fa52f5f8-7d09-4103-921c-0146c0322cef';
 const PHONE_PROP = 'mobilephone';
+// First-party proxy endpoint (see proxy/). Baked at generate time from the env;
+// empty => the form posts to HubSpot directly (today's behaviour). Set it and
+// re-run this script once the Cloudflare Worker is deployed:
+//   LEAD_ENDPOINT=https://forms.deedo.ai/lead node scripts/build-howitworks.mjs
+const LEAD_ENDPOINT = process.env.LEAD_ENDPOINT || '';
 const PRIVACY_URL = 'https://app.deedo.ai/privacy-policy';
 const TERMS_URL = 'https://app.deedo.ai/terms-of-use';
 
@@ -97,6 +102,7 @@ const gtmHead = `
     .htw-form-sheet .consent a { color: var(--brand); }
     .htw-form-sheet .form-err { margin-top: 12px; border-radius: 8px; background: #fdecea;
       padding: 9px 12px; font-size: 12px; color: #a5281b; }
+    .htw-form-sheet .form-err a { color: #a5281b; font-weight: 800; text-decoration: underline; }
     .htw-form-sheet button { margin-top: 18px; width: 100%; border: 0; border-radius: 24px;
       background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff;
       font-size: 14px; font-weight: 800; padding: 12px 16px; cursor: pointer; font-family: inherit; }
@@ -206,7 +212,8 @@ const formSheet = `
         phoneProperty: '${PHONE_PROP}',    // this form requires mobilephone, not phone
         smsConsentProperty: 'sms_opt_in',
         smsConsentTimestampProperty: 'sms_opt_in_timestamp',
-        smsConsentTextVersionProperty: 'sms_consent_text_version'
+        smsConsentTextVersionProperty: 'sms_consent_text_version',
+        leadEndpoint: '${LEAD_ENDPOINT}'   // first-party proxy; empty => direct
       };
       var SMS_CONSENT_TEXT =
         'By checking this box, you agree to receive automated promotional and informational text ' +
@@ -267,14 +274,27 @@ const formSheet = `
         var body = { fields: fields, context: { pageUri: window.location.href, pageName: document.title }, legalConsentOptions: { consent: { consentToProcess: true, text: SMS_CONSENT_TEXT } } };
         if (utk) body.context.hutk = utk;
 
-        fetch('https://api.hsforms.com/submissions/v3/integration/submit/' + encodeURIComponent(HUBSPOT.portalId) + '/' + encodeURIComponent(HUBSPOT.formGuid), {
+        // Prefer the first-party proxy (blocker-proof); fall back to HubSpot direct.
+        var endpoint = HUBSPOT.leadEndpoint
+          ? HUBSPOT.leadEndpoint + '?portalId=' + encodeURIComponent(HUBSPOT.portalId) + '&formGuid=' + encodeURIComponent(HUBSPOT.formGuid)
+          : 'https://api.hsforms.com/submissions/v3/integration/submit/' + encodeURIComponent(HUBSPOT.portalId) + '/' + encodeURIComponent(HUBSPOT.formGuid);
+        fetch(endpoint, {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
         }).then(function (res) {
           if (res.ok) { showSuccess(); window.dataLayer && window.dataLayer.push({ event: 'generate_lead', form: 'howitworks' }); return; }
           return res.json().catch(function () { return null; }).then(function (p) { console.error('[HubSpot]', res.status, p); fail(res.status === 400 ? 'We could not process your details. Please check the fields and try again.' : 'Something went wrong on our end. Please try again in a moment.'); });
-        }).catch(function (err) { console.error('[HubSpot] network', err); fail('Network error. Please check your connection and try again.'); });
+        }).catch(function (err) {
+          // fetch() only throws on a network-level failure. From a working
+          // browser the endpoint is reachable, so in practice this is an ad
+          // blocker / privacy setting blocking api.hsforms.com. Say so, and give
+          // a path that does not depend on the blocked request.
+          console.error('[HubSpot] blocked/network', err);
+          window.dataLayer && window.dataLayer.push({ event: 'form_submit_blocked', form: 'howitworks' });
+          fail('We could not submit the form &mdash; an ad blocker or privacy setting may be blocking it. Turn it off and retry, or <a href="https://deedo.ai" target="_blank" rel="noopener">sign up at deedo.ai</a>.');
+        });
 
-        function fail(msg) { btn.disabled = false; btn.textContent = 'Get started free'; var fe = $('form-err'); fe.textContent = msg; fe.hidden = false; }
+        // innerHTML so the fallback link renders; messages here are trusted literals.
+        function fail(msg) { btn.disabled = false; btn.textContent = 'Get started free'; var fe = $('form-err'); fe.innerHTML = msg; fe.hidden = false; }
       });
       ['firstname', 'lastname', 'email', 'phone'].forEach(function (id) { $(id).addEventListener('input', function () { setErr(id, ''); }); });
       $('smsConsent').addEventListener('change', function () { setErr('smsConsent', ''); });
