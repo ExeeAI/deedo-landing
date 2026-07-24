@@ -19,23 +19,29 @@ Browser ──POST──▶ forms.deedo.ai/lead ──(edge, server-side)──�
         (first-party, not on any blocklist)
 ```
 
-## Deploy (one time)
+## Fastest path — works immediately, no DNS needed
 
-Requires the `deedo.ai` DNS zone to be on Cloudflare.
+You do **not** need `deedo.ai` on Cloudflare to fix the blocking. A free
+Cloudflare account is enough:
 
 ```bash
 cd proxy
-npx wrangler login
-# Edit wrangler.toml: uncomment the forms.deedo.ai route (approach A).
-npx wrangler deploy
+npx wrangler login     # opens a browser; free account is fine
+npx wrangler deploy    # prints https://deedo-lead-proxy.<you>.workers.dev
 ```
 
-Then in Cloudflare → Workers → your worker → **Settings → Domains & Routes**,
-confirm `forms.deedo.ai/lead` is attached (wrangler does this when the route is
-uncommented and DNS is on Cloudflare).
+`*.workers.dev` is not on any tracker blocklist, so it evades Tracking
+Prevention just as well as a custom domain. Set the site's `LEAD_ENDPOINT` to
+`https://deedo-lead-proxy.<you>.workers.dev` (see "Point the site at it") and the
+form works for blocked visitors right away. Send that URL over and the site can
+be wired up in a minute.
 
-No custom domain yet? `wrangler deploy` still prints a
-`https://deedo-lead-proxy.<subdomain>.workers.dev` URL that works for testing.
+## Optional upgrade — custom domain
+
+If `deedo.ai` is on Cloudflare, uncomment the `forms.deedo.ai/lead` route in
+`wrangler.toml` and `npx wrangler deploy` again, then point `LEAD_ENDPOINT` at
+`https://forms.deedo.ai/lead`. Cleaner and unambiguously first-party, but not
+required for the fix.
 
 ## Point the site at it
 
