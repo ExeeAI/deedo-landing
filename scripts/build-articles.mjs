@@ -60,6 +60,14 @@ function readingTime(md) {
   return Math.max(1, Math.round(words / 200));
 }
 
+// YAML parses an unquoted `date: 2026-07-25` into a Date object, and
+// String(Date) is a locale string, not ISO — which broke prettyDate (NaN) and
+// the schema/sitemap dates. Normalize everything to a clean YYYY-MM-DD string.
+function toISODate(v) {
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  return String(v).slice(0, 10);
+}
+
 function prettyDate(iso) {
   // Deterministic, locale-independent (no Date locale calls that vary by host).
   const [y, m, d] = iso.split('-').map(Number);
@@ -173,8 +181,8 @@ const articles = parsed.map(({ data, content, slug }) => ({
   // headline). Falls back to "<title> — Deedo".
   seoTitle: data.seoTitle || null,
   description: data.description,
-  date: String(data.date),
-  updated: String(data.updated || data.date),
+  date: toISODate(data.date),
+  updated: toISODate(data.updated || data.date),
   author: data.author || 'Deedo',
   image: data.image || '/og-image.png',
   tags: Array.isArray(data.tags) ? data.tags : [],
