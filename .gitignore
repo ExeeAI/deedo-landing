@@ -14,3 +14,8 @@ dist
 # build time (npm run build), so they're artifacts, not source.
 public/articles/
 public/sitemap.xml
+
+# inbox/ — local staging for article drafts & instructions. Everything dropped
+# here is private/uncommitted; only the README (the workflow guide) is tracked.
+inbox/*
+!inbox/README.md
