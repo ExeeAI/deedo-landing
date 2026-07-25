@@ -18,6 +18,9 @@ import { useReveal } from '../lib/useReveal';
 import lockup from '../assets/deedo-lockup.svg';
 
 const DEEDO_URL = 'https://deedo.ai';
+// "Claim / start / sign up" CTAs go to the app sign-up flow; the footer brand
+// link keeps using DEEDO_URL (the marketing site).
+const SIGNUP_URL = 'https://app.deedo.ai/signup';
 
 /** Fire an analytics event and let the default link/scroll happen. */
 function cta(name: string, location: string) {
@@ -68,7 +71,7 @@ export default function HowItWorks2(): React.JSX.Element {
             <a href="#demo" onClick={() => cta('request_demo', 'nav')} className="hidden border border-ink/25 px-4 py-2 font-mono text-[11px] uppercase tracking-survey text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper sm:inline-block">
               Request a demo
             </a>
-            <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'nav')} className="bg-clay px-4 py-2 font-mono text-[11px] uppercase tracking-survey text-paper transition-colors hover:bg-clay-deep">
+            <a href={SIGNUP_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'nav')} className="bg-clay px-4 py-2 font-mono text-[11px] uppercase tracking-survey text-paper transition-colors hover:bg-clay-deep">
               Start free
             </a>
           </div>
@@ -93,7 +96,7 @@ export default function HowItWorks2(): React.JSX.Element {
             </p>
 
             <div className="animate-rise-in mt-9 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: '340ms' }}>
-              <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('claim_free_listing', 'hero')} className="group inline-flex items-center justify-center gap-2 bg-clay px-7 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-clay-deep">
+              <a href={SIGNUP_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('claim_free_listing', 'hero')} className="group inline-flex items-center justify-center gap-2 bg-clay px-7 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-clay-deep">
                 Claim your free listing
                 <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
               </a>
@@ -123,7 +126,7 @@ export default function HowItWorks2(): React.JSX.Element {
                   </li>
                 ))}
               </ul>
-              <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('claim_free_listing', 'hero_card')} className="mt-6 block bg-ink px-5 py-3 text-center text-sm font-medium text-paper transition-colors hover:bg-navy">
+              <a href={SIGNUP_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('claim_free_listing', 'hero_card')} className="mt-6 block bg-ink px-5 py-3 text-center text-sm font-medium text-paper transition-colors hover:bg-navy">
                 Start free — no card needed
               </a>
             </div>
@@ -183,7 +186,7 @@ export default function HowItWorks2(): React.JSX.Element {
               <Marker n="A" label="Ready now" />
               <h3 className="font-display text-2xl text-ink">Start free, right now</h3>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">Create your account, upload a listing’s documents, and deploy your QR code today. No card, no call, no waiting — you’re live in minutes.</p>
-              <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'two_paths')} className="group mt-6 inline-flex items-center justify-center gap-2 bg-clay px-6 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-clay-deep">
+              <a href={SIGNUP_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'two_paths')} className="group mt-6 inline-flex items-center justify-center gap-2 bg-clay px-6 py-3.5 text-sm font-medium text-paper transition-colors hover:bg-clay-deep">
                 Sign up & claim your free listing
                 <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
               </a>
@@ -224,7 +227,7 @@ export default function HowItWorks2(): React.JSX.Element {
                   <li key={t} className="flex gap-3 border-t border-ink/12 pt-3 text-sm text-ink-soft"><span aria-hidden="true" className="mt-0.5 text-clay">✓</span><span>{t}</span></li>
                 ))}
               </ul>
-              <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('claim_free_listing', 'pricing')} className="mt-7 block bg-clay px-6 py-3.5 text-center text-sm font-medium text-paper transition-colors hover:bg-clay-deep">
+              <a href={SIGNUP_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('claim_free_listing', 'pricing')} className="mt-7 block bg-clay px-6 py-3.5 text-center text-sm font-medium text-paper transition-colors hover:bg-clay-deep">
                 Claim your free listing
               </a>
             </div>
@@ -241,7 +244,7 @@ export default function HowItWorks2(): React.JSX.Element {
                   <li key={t} className="flex gap-3 border-t border-ink/15 pt-3 text-sm text-ink-soft"><span aria-hidden="true" className="mt-0.5 text-navy">✓</span><span>{t}</span></li>
                 ))}
               </ul>
-              <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'pricing_sub')} className="mt-7 block border border-ink/25 px-6 py-3.5 text-center text-sm font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper">
+              <a href={SIGNUP_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'pricing_sub')} className="mt-7 block border border-ink/25 px-6 py-3.5 text-center text-sm font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper">
                 Start with your free listing first
               </a>
             </div>
@@ -261,7 +264,7 @@ export default function HowItWorks2(): React.JSX.Element {
             <p className="mt-4 max-w-md text-base leading-relaxed text-ink-soft">Leave your details and a Deedo expert will call you back to set up your first — free — listing and answer anything.</p>
             <p className="mt-6 font-mono text-[12px] text-ink">
               In a hurry?{' '}
-              <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'demo_inline')} className="text-clay underline">skip the call and start free now →</a>
+              <a href={SIGNUP_URL} target="_blank" rel="noopener noreferrer" onClick={() => cta('start_free', 'demo_inline')} className="text-clay underline">skip the call and start free now →</a>
             </p>
             <dl className="mt-8 space-y-4">
               {[['Setup', 'Under 10 minutes per listing'], ['Coverage', 'United States & Canada'], ['First listing', 'Free 30 days · no card']].map(([k, v]) => (

@@ -19,6 +19,9 @@ import { useReveal } from '../lib/useReveal';
 import lockup from '../assets/deedo-lockup.svg';
 
 const DEEDO_URL = 'https://deedo.ai';
+// Where "claim / start / sign up" CTAs go — the app sign-up flow, not the
+// marketing site. Brand/learn links keep using DEEDO_URL.
+const SIGNUP_URL = 'https://app.deedo.ai/signup';
 
 const TRUST = [
   {
@@ -323,7 +326,7 @@ export default function Landing(): React.JSX.Element {
               style={{ animationDelay: '360ms' }}
             >
               <a
-                href={DEEDO_URL}
+                href={SIGNUP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => track('cta_click', { cta: 'claim_free_listing', location: 'hero' })}
@@ -538,7 +541,7 @@ export default function Landing(): React.JSX.Element {
             </div>
 
             <a
-              href={DEEDO_URL}
+              href={SIGNUP_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => track('cta_click', { cta: 'phone_first_signup', location: 'pricing' })}

@@ -151,10 +151,10 @@ html = html.replace(
   `<div class="badge">1st listing FREE</div>\n    ${heroCta}`
 );
 
-// Closing band CTA -> the main site (sign-up). The hero covers the form.
+// Closing band CTA -> the app sign-up flow. The hero covers the form.
 const footBtn =
-  `<a href="https://deedo.ai" target="_blank" rel="noopener" class="htw-foot-btn"` +
-  ` onclick="window.dataLayer&&window.dataLayer.push({event:'cta_click',cta:'get_started',location:'howitworks_footer',destination:'deedo.ai'})">` +
+  `<a href="https://app.deedo.ai/signup" target="_blank" rel="noopener" class="htw-foot-btn"` +
+  ` onclick="window.dataLayer&&window.dataLayer.push({event:'cta_click',cta:'get_started',location:'howitworks_footer',destination:'signup'})">` +
   `Get started free &rarr;</a>`;
 html = html.replace(
   /(<div class="p2-foot">[\s\S]*?<\/span>)(\s*<\/div>)/,
@@ -331,7 +331,7 @@ const formSheet = `
           // a path that does not depend on the blocked request.
           console.error('[HubSpot] blocked/network', err);
           window.dataLayer && window.dataLayer.push({ event: 'form_submit_blocked', form: 'howitworks' });
-          fail('We could not submit the form &mdash; an ad blocker or privacy setting may be blocking it. Turn it off and retry, or <a href="https://deedo.ai" target="_blank" rel="noopener">sign up at deedo.ai</a>.');
+          fail('We could not submit the form &mdash; an ad blocker or privacy setting may be blocking it. Turn it off and retry, or <a href="https://app.deedo.ai/signup" target="_blank" rel="noopener">sign up directly</a>.');
         });
 
         // innerHTML so the fallback link renders; messages here are trusted literals.
