@@ -37,6 +37,7 @@ export default defineConfig({
         main: entry('./index.html'),
         tryus: entry('./tryus/index.html'),
         talk: entry('./talk/index.html'),
+        howitworks2: entry('./howitworks2/index.html'),
       },
     },
   },
