@@ -47,6 +47,13 @@ export interface HubspotConfig {
    * the proxy forwards to HubSpot server-side. Empty => post to HubSpot direct.
    */
   leadEndpoint?: string;
+  /**
+   * HubSpot subscription type id for the "receive other communications"
+   * consent. When set, that consent records as a native email subscription;
+   * when absent, the checkbox is still enforced in the UI but not sent (so a
+   * submission never 400s on a missing/invalid id).
+   */
+  commSubscriptionTypeId?: number;
 }
 
 export interface LeadFields {
@@ -57,7 +64,17 @@ export interface LeadFields {
   phone: string;
   /** The 10DLC SMS opt-in checkbox state. */
   smsConsent: boolean;
+  /** GDPR "receive other communications" checkbox (HubSpot form fa52f5f8). */
+  commConsent?: boolean;
+  /** GDPR "store and process my personal data" checkbox. */
+  processConsent?: boolean;
 }
+
+/** GDPR data-processing consent language (mirrors the HubSpot form). */
+export const PROCESS_CONSENT_TEXT =
+  'I agree to allow Deedo.AI to store and process my personal data.';
+/** GDPR communications consent language. */
+export const COMM_CONSENT_TEXT = 'I agree to receive other communications from Deedo.AI.';
 
 /** The exact TCPA/CTIA consent language shown to (and agreed by) the user. */
 export const SMS_CONSENT_TEXT =
@@ -128,21 +145,10 @@ export async function submitLead(
     { name: consentPropertyName, value: String(fields.smsConsent) },
   ];
 
-  if (config.smsConsentTimestampPropertyName && fields.smsConsent) {
-    fieldEntries.push({
-      name: config.smsConsentTimestampPropertyName,
-      // HubSpot date/datetime FORM fields want epoch milliseconds — an ISO
-      // string is silently dropped and the property stays empty.
-      value: String(Date.now()),
-    });
-  }
-
-  if (config.smsConsentTextVersionPropertyName && fields.smsConsent) {
-    fieldEntries.push({
-      name: config.smsConsentTextVersionPropertyName,
-      value: SMS_CONSENT_TEXT_VERSION,
-    });
-  }
+  // NOTE: sms_opt_in_timestamp / sms_consent_text_version are intentionally NOT
+  // sent. They are not fields on the published HubSpot form, so HubSpot silently
+  // dropped them — and they duplicate createdate + the native consent log. The
+  // config props remain for reference but are unused.
 
   const hutk = readHubspotUtk();
 
@@ -159,18 +165,25 @@ export async function submitLead(
     },
   };
 
-  // Communications-consent audit trail. Requires the form to be configured
-  // with consent/subscription options in HubSpot; harmless otherwise.
-  if (fields.smsConsent) {
-    body.legalConsentOptions = {
-      consent: {
-        consentToProcess: true,
-        text: SMS_CONSENT_TEXT,
-        // If you wire this to a specific SMS subscription type, add:
-        // communications: [{ value: true, subscriptionTypeId: <id>, text: SMS_CONSENT_TEXT }],
-      },
-    };
+  // GDPR consent record (mirrors the HubSpot form). consentToProcess carries
+  // the data-processing consent — no subscription id needed. The "receive other
+  // communications" consent is a native email subscription, so it's only sent
+  // when a subscription type id is configured; otherwise it's omitted and the
+  // submission still succeeds (the checkbox is enforced in the UI regardless).
+  const consent: {
+    consentToProcess: boolean;
+    text: string;
+    communications?: Array<{ value: boolean; subscriptionTypeId: number; text: string }>;
+  } = {
+    consentToProcess: fields.processConsent ?? true,
+    text: PROCESS_CONSENT_TEXT,
+  };
+  if (fields.commConsent && config.commSubscriptionTypeId) {
+    consent.communications = [
+      { value: true, subscriptionTypeId: config.commSubscriptionTypeId, text: COMM_CONSENT_TEXT },
+    ];
   }
+  body.legalConsentOptions = { consent };
 
   try {
     const res = await fetch(endpoint, {

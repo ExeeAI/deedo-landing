@@ -25,7 +25,22 @@ import {
   type HubspotConfig,
 } from '../lib/hubspot';
 
-type FieldName = 'firstname' | 'lastname' | 'email' | 'phone' | 'smsConsent';
+type FieldName =
+  | 'firstname'
+  | 'lastname'
+  | 'email'
+  | 'phone'
+  | 'smsConsent'
+  | 'commConsent'
+  | 'processConsent';
+
+// GDPR consent copy — mirrors the HubSpot form fa52f5f8.
+const COMM_CONSENT_INTRO =
+  "Deedo.ai is committed to protecting and respecting your privacy, and we'll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. If you consent to us contacting you for this purpose, please tick below:";
+const COMM_CONSENT_LABEL = 'I agree to receive other communications from Deedo.AI.';
+const PROCESS_CONSENT_INTRO =
+  'In order to provide you the content requested, we need to store and process your personal data. If you consent to us storing your personal data for this purpose, please tick the checkbox below:';
+const PROCESS_CONSENT_LABEL = 'I agree to allow Deedo.AI to store and process my personal data.';
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 export interface HubspotFormProps {
@@ -66,6 +81,9 @@ function resolveConfig(override?: Partial<HubspotConfig>): HubspotConfig {
       override?.smsConsentTextVersionPropertyName ??
       e.VITE_HUBSPOT_SMS_CONSENT_VERSION_PROPERTY,
     leadEndpoint: override?.leadEndpoint ?? e.VITE_LEAD_ENDPOINT,
+    commSubscriptionTypeId:
+      override?.commSubscriptionTypeId ??
+      (e.VITE_LEAD_COMM_SUB_ID ? Number(e.VITE_LEAD_COMM_SUB_ID) : undefined),
   };
 }
 
@@ -99,6 +117,8 @@ export default function HubspotForm({
     ...EMPTY,
   });
   const [smsConsent, setSmsConsent] = useState(false);
+  const [commConsent, setCommConsent] = useState(false);
+  const [processConsent, setProcessConsent] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [formError, setFormError] = useState<string>('');
@@ -119,8 +139,12 @@ export default function HubspotForm({
     if (!validators.email(values.email)) next.email = 'Enter a valid email address.';
     if (!validators.phone(values.phone))
       next.phone = 'Enter a valid US or Canadian mobile number (10 digits).';
-    // 10DLC: consent is REQUIRED to submit.
+    // 10DLC: SMS consent is REQUIRED to submit; the two GDPR consents mirror
+    // the HubSpot form and are also required.
     if (!smsConsent) next.smsConsent = 'You must agree to receive text messages to continue.';
+    if (!commConsent) next.commConsent = 'Please agree to receive communications to continue.';
+    if (!processConsent)
+      next.processConsent = 'Please agree to allow us to store and process your data.';
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -151,7 +175,7 @@ export default function HubspotForm({
 
     const result = await submitLead(
       config,
-      { ...values, smsConsent },
+      { ...values, smsConsent, commConsent, processConsent },
       { signal: controller.signal }
     );
 
@@ -327,6 +351,41 @@ export default function HubspotForm({
         )}
       </div>
 
+      {/* GDPR consents — mirror the HubSpot form fa52f5f8. */}
+      <p className="mt-5 text-xs leading-5 text-ink-soft">{COMM_CONSENT_INTRO}</p>
+      <ConsentCheckbox
+        id={fid('commConsent')}
+        name="commConsent"
+        label={COMM_CONSENT_LABEL}
+        checked={commConsent}
+        error={errors.commConsent}
+        onChange={(v) => {
+          setCommConsent(v);
+          if (errors.commConsent) setErrors((p) => ({ ...p, commConsent: undefined }));
+        }}
+      />
+
+      <p className="mt-5 text-xs leading-5 text-ink-soft">{PROCESS_CONSENT_INTRO}</p>
+      <ConsentCheckbox
+        id={fid('processConsent')}
+        name="processConsent"
+        label={PROCESS_CONSENT_LABEL}
+        checked={processConsent}
+        error={errors.processConsent}
+        onChange={(v) => {
+          setProcessConsent(v);
+          if (errors.processConsent) setErrors((p) => ({ ...p, processConsent: undefined }));
+        }}
+      />
+
+      <p className="mt-4 text-xs leading-5 text-ink-mute">
+        You may unsubscribe from these communications at any time. See our{' '}
+        <a href={legal.privacy} target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">
+          Privacy Policy
+        </a>
+        .
+      </p>
+
       {formError && (
         <p role="alert" className="mt-4 border-l-2 border-clay bg-clay/10 px-3 py-2 text-sm text-clay-deep">
           {formError}
@@ -345,6 +404,42 @@ export default function HubspotForm({
 }
 
 /** Small labelled input, extracted to keep the form body readable. */
+/** A required consent checkbox with label + inline error, matching the SMS one. */
+function ConsentCheckbox(props: {
+  id: string;
+  name: string;
+  label: string;
+  checked: boolean;
+  error?: string;
+  onChange: (v: boolean) => void;
+}): React.JSX.Element {
+  const { id, name, label, checked, error, onChange } = props;
+  return (
+    <div className="mt-2">
+      <div className="flex items-start gap-3">
+        <input
+          id={id}
+          name={name}
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-err` : undefined}
+          className="mt-0.5 h-5 w-5 shrink-0 rounded-none border-ink/30 text-navy accent-navy focus:ring-navy"
+        />
+        <label htmlFor={id} className="text-xs leading-5 text-ink-soft">
+          {label}
+        </label>
+      </div>
+      {error && (
+        <p id={`${id}-err`} role="alert" className="mt-1.5 pl-8 text-xs text-clay-deep">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Field(props: {
   id: string;
   /** Semantic form-control name (e.g. "email"), kept distinct from the unique DOM id. */
