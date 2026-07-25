@@ -289,6 +289,7 @@ export default function HowItWorks2(): React.JSX.Element {
             <p className="marker max-w-[10rem] leading-4">AI for Real Estate Listings</p>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <a href="/articles/" className="marker transition-colors hover:text-ink">Articles</a>
             <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">deedo.ai</a>
             <a href="https://app.deedo.ai/privacy-policy" target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">Privacy</a>
             <a href="https://app.deedo.ai/terms-of-use" target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">Terms</a>

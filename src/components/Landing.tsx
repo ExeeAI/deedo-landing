@@ -600,6 +600,9 @@ export default function Landing(): React.JSX.Element {
             <p className="marker max-w-[10rem] leading-4">AI for Real Estate Listings</p>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <a href="/articles/" className="marker transition-colors hover:text-ink">
+              Articles
+            </a>
             <a href={DEEDO_URL} target="_blank" rel="noopener noreferrer" className="marker transition-colors hover:text-ink">
               deedo.ai
             </a>

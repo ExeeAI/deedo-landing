@@ -27,9 +27,9 @@ They become the on-page structure Google reads, and each gets an `id` so you can
 **Internal linking is the whole game.** Link to other articles with root-absolute paths so the internal-link graph grows:
 see our [guide to QR codes for listings](/articles/qr-codes-real-estate-listings/). The build FAILS-loud (warns) if you link to a slug that doesn't exist.
 
-**Images** — store them in `public/articles/images/` and reference by absolute path. Alt text is required (it warns if missing); a title becomes a caption; width/height are read automatically to prevent layout shift:
+**Images** — store them in `public/img/articles/` (a committed folder — do NOT use `public/articles/`, which is generated/gitignored) and reference by absolute path. Use descriptive, keyword-rich file names. Alt text is required (it warns if missing); a title becomes a caption; width/height are read automatically to prevent layout shift:
 
-![Descriptive alt text for SEO and accessibility](/articles/images/example.png "Optional caption shown under the image")
+![Descriptive alt text for SEO and accessibility](/img/articles/example.webp "Optional caption shown under the image")
 
 **External links** automatically get `target="_blank" rel="noopener"`.
 
