@@ -42,6 +42,10 @@ const PHONE_PROP = 'mobilephone';
 // re-run this script once the Cloudflare Worker is deployed:
 //   LEAD_ENDPOINT=https://forms.deedo.ai/lead node scripts/build-howitworks.mjs
 const LEAD_ENDPOINT = process.env.LEAD_ENDPOINT || '';
+// Subscription type id for the "receive other communications" GDPR consent.
+// Empty until known — that consent then records as a native email subscription.
+// Set and re-run: LEAD_COMM_SUB_ID=1234567 node scripts/build-howitworks.mjs
+const LEAD_COMM_SUB_ID = process.env.LEAD_COMM_SUB_ID || '';
 const PRIVACY_URL = 'https://app.deedo.ai/privacy-policy';
 const TERMS_URL = 'https://app.deedo.ai/terms-of-use';
 
@@ -100,6 +104,9 @@ const gtmHead = `
       accent-color: var(--brand); }
     .htw-form-sheet .consent label { font-size: 11px; line-height: 1.5; color: var(--ink-soft); }
     .htw-form-sheet .consent a { color: var(--brand); }
+    /* GDPR consent intro/footer paragraphs (mirror the HubSpot form). */
+    .htw-form-sheet .gdpr-intro { font-size: 11px; line-height: 1.5; color: var(--ink-soft); margin: 16px 0 8px; }
+    .htw-form-sheet .gdpr-foot { font-size: 11px; line-height: 1.5; color: var(--ink-mute); margin: 14px 0 0; }
     .htw-form-sheet .form-err { margin-top: 12px; border-radius: 8px; background: #fdecea;
       padding: 9px 12px; font-size: 12px; color: #a5281b; }
     .htw-form-sheet .form-err a { color: #a5281b; font-weight: 800; text-decoration: underline; }
@@ -199,6 +206,24 @@ const formSheet = `
           </label>
         </div>
         <p class="consent-err" id="smsConsent-err" hidden></p>
+
+        <!-- GDPR consent — mirrors the HubSpot form fa52f5f8 -->
+        <p class="gdpr-intro">Deedo.ai is committed to protecting and respecting your privacy, and we'll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. If you consent to us contacting you for this purpose, please tick below:</p>
+        <div class="consent">
+          <input id="commConsent" name="commConsent" type="checkbox" aria-describedby="commConsent-err" />
+          <label for="commConsent">I agree to receive other communications from Deedo.AI.</label>
+        </div>
+        <p class="consent-err" id="commConsent-err" hidden></p>
+
+        <p class="gdpr-intro">In order to provide you the content requested, we need to store and process your personal data. If you consent to us storing your personal data for this purpose, please tick the checkbox below:</p>
+        <div class="consent">
+          <input id="processConsent" name="processConsent" type="checkbox" aria-describedby="processConsent-err" />
+          <label for="processConsent">I agree to allow Deedo.AI to store and process my personal data.</label>
+        </div>
+        <p class="consent-err" id="processConsent-err" hidden></p>
+
+        <p class="gdpr-foot">You may unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our <a href="${PRIVACY_URL}" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+
         <p class="form-err" id="form-err" hidden></p>
         <button type="submit" id="submit-btn">Get started free</button>
       </form>
@@ -242,13 +267,22 @@ const formSheet = `
           '<p>A Deedo.ai expert will reach out shortly. Watch for a confirmation text at the number you provided.</p></div>';
       }
 
+      var PROCESS_CONSENT_TEXT = 'I agree to allow Deedo.AI to store and process my personal data.';
+      var COMM_CONSENT_TEXT = 'I agree to receive other communications from Deedo.AI.';
+      // Subscription type id for the "other communications" consent. Fill in once
+      // known, then that consent records as a native HubSpot email subscription.
+      var COMM_SUBSCRIPTION_TYPE_ID = ${LEAD_COMM_SUB_ID || 'null'};
+
       var form = $('lead-form');
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         $('form-err').hidden = true;
         var vals = {
           firstname: $('firstname').value, lastname: $('lastname').value,
-          email: $('email').value, phone: $('phone').value, smsConsent: $('smsConsent').checked
+          email: $('email').value, phone: $('phone').value,
+          smsConsent: $('smsConsent').checked,
+          commConsent: $('commConsent').checked,
+          processConsent: $('processConsent').checked
         };
         var ok = true;
         setErr('firstname', vals.firstname.trim() ? '' : 'First name is required.'); ok = ok && !!vals.firstname.trim();
@@ -256,6 +290,8 @@ const formSheet = `
         setErr('email', isEmail(vals.email) ? '' : 'Enter a valid email address.'); ok = ok && isEmail(vals.email);
         setErr('phone', isPhone(vals.phone) ? '' : 'Enter a valid US or Canadian mobile number (10 digits).'); ok = ok && isPhone(vals.phone);
         setErr('smsConsent', vals.smsConsent ? '' : 'You must agree to receive text messages to continue.'); ok = ok && vals.smsConsent;
+        setErr('commConsent', vals.commConsent ? '' : 'Please agree to receive communications to continue.'); ok = ok && vals.commConsent;
+        setErr('processConsent', vals.processConsent ? '' : 'Please agree to allow us to store and process your data.'); ok = ok && vals.processConsent;
         if (!ok) return;
         if ($('company_website').value) { showSuccess(); return; } // honeypot
 
@@ -267,13 +303,16 @@ const formSheet = `
           { name: HUBSPOT.phoneProperty, value: vals.phone.trim() },
           { name: HUBSPOT.smsConsentProperty, value: String(vals.smsConsent) }
         ];
-        // HubSpot date/datetime form fields want epoch MILLISECONDS, not ISO
-        // text — an ISO string is silently dropped, leaving the field empty.
-        if (HUBSPOT.smsConsentTimestampProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTimestampProperty, value: String(new Date().getTime()) });
-        if (HUBSPOT.smsConsentTextVersionProperty && vals.smsConsent) fields.push({ name: HUBSPOT.smsConsentTextVersionProperty, value: SMS_CONSENT_TEXT_VERSION });
 
         var utk = readUtk();
-        var body = { fields: fields, context: { pageUri: window.location.href, pageName: document.title }, legalConsentOptions: { consent: { consentToProcess: true, text: SMS_CONSENT_TEXT } } };
+        // Consent record: SMS opt-in stays a contact property (sms_opt_in); the
+        // two GDPR checkboxes go in legalConsentOptions. consentToProcess covers
+        // data-processing (no id needed); communications needs a subscription id.
+        var consent = { consentToProcess: vals.processConsent, text: PROCESS_CONSENT_TEXT };
+        if (vals.commConsent && COMM_SUBSCRIPTION_TYPE_ID) {
+          consent.communications = [{ value: true, subscriptionTypeId: COMM_SUBSCRIPTION_TYPE_ID, text: COMM_CONSENT_TEXT }];
+        }
+        var body = { fields: fields, context: { pageUri: window.location.href, pageName: document.title }, legalConsentOptions: { consent: consent } };
         if (utk) body.context.hutk = utk;
 
         // Prefer the first-party proxy (blocker-proof); fall back to HubSpot direct.
@@ -299,7 +338,7 @@ const formSheet = `
         function fail(msg) { btn.disabled = false; btn.textContent = 'Get started free'; var fe = $('form-err'); fe.innerHTML = msg; fe.hidden = false; }
       });
       ['firstname', 'lastname', 'email', 'phone'].forEach(function (id) { $(id).addEventListener('input', function () { setErr(id, ''); }); });
-      $('smsConsent').addEventListener('change', function () { setErr('smsConsent', ''); });
+      ['smsConsent', 'commConsent', 'processConsent'].forEach(function (id) { $(id).addEventListener('change', function () { setErr(id, ''); }); });
     })();
   </script>
 `;
