@@ -168,6 +168,10 @@ const parsed = files.map((file) => {
 const articles = parsed.map(({ data, content, slug }) => ({
   slug,
   title: data.title,
+  // Optional SEO <title> distinct from the on-page <h1>. Used verbatim when set
+  // (best-practice: optimise the SERP title separately from the reader-facing
+  // headline). Falls back to "<title> — Deedo".
+  seoTitle: data.seoTitle || null,
   description: data.description,
   date: String(data.date),
   updated: String(data.updated || data.date),
@@ -301,7 +305,7 @@ function articlePage(a) {
 
   return `<!doctype html>
 <html lang="en">
-<head>${head({ title: `${a.title} — Deedo`, description: a.description, url, image: a.image, extraMeta, jsonld: [articleSchema, breadcrumbSchema] })}
+<head>${head({ title: a.seoTitle || `${a.title} — Deedo`, description: a.description, url, image: a.image, extraMeta, jsonld: [articleSchema, breadcrumbSchema] })}
 </head>
 <body>
   ${header}
