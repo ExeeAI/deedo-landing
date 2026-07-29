@@ -18,8 +18,6 @@ Social media is arguably a real estate agent's single best lead source — and a
 
 Three quarters of agents use social media, and for good reason — it's where buyers and sellers spend their attention. But here's the trap: generating attention and *capturing* a lead are two different jobs. A viral Reel with 50,000 views and no way for interested viewers to become contacts is a vanity metric, not a pipeline. The leak happens in the gap between the view and the reply, and closing that gap is what separates agents who get leads from social from agents who just get likes.
 
-![A real estate agent getting social media views but no actual leads](/img/articles/real-estate-social-views-no-leads.webp "Views and likes aren't leads — the pipeline leaks in the gap between the view and the reply.")
-
 ## Platform Priorities for Listing Agents
 
 You don't need to be everywhere. Pick one or two and do them well:
@@ -66,6 +64,8 @@ This is exactly where Deedo.ai closes the gap. A bio link or QR routes followers
 ## Answer Every DM in Seconds, 24/7
 
 Social leads are impulsive — the "is this still available?" DM at 10 p.m. goes cold if it waits until morning. Deedo's **AI Concierge** answers the inquiries your social content drives instantly, around the clock, grounded strictly in the property's documents, and escalates to you when a human is needed. Paired with **property-scoped chat**, the flood of "what's the HOA fee?" messages converts instead of evaporating. (Speed matters everywhere — see [real estate lead response time](/articles/real-estate-lead-response-time/).)
+
+![Property-scoped chat organizing the DMs and inquiries that social media drives](/img/articles/social-property-scoped-chat-dms.webp "Property-scoped chat turns the DM flood social drives into organized, answered conversations tied to the listing.")
 
 ## Put It Together: A Repeatable Weekly System
 
