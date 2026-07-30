@@ -252,6 +252,7 @@ const head = ({ title, description, url, image, extraMeta = '', jsonld = [] }) =
   <meta name="description" content="${esc(description)}" />
   <link rel="canonical" href="${url}" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="alternate" type="application/rss+xml" title="Deedo Articles" href="${SITE}/articles/rss.xml" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <meta property="og:site_name" content="Deedo" />
   <meta property="og:title" content="${esc(title)}" />
@@ -420,6 +421,40 @@ function sitemap() {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
+// RSS 2.0 feed of all articles (newest first), served at /articles/rss.xml.
+// pubDate uses RFC-822 (toUTCString); dates are stamped at 09:00Z so the feed
+// output stays deterministic across builds.
+function rss() {
+  const feedUrl = `${SITE}/articles/rss.xml`;
+  const rfc822 = (d) => new Date(`${d}T09:00:00Z`).toUTCString();
+  const items = articles
+    .map((a) => {
+      const url = `${SITE}/articles/${a.slug}/`;
+      const cats = a.tags.map((t) => `\n      <category>${esc(t)}</category>`).join('');
+      return `    <item>
+      <title>${esc(a.title)}</title>
+      <link>${url}</link>
+      <guid isPermaLink="true">${url}</guid>
+      <pubDate>${rfc822(a.date)}</pubDate>
+      <description>${esc(a.description)}</description>${cats}
+    </item>`;
+    })
+    .join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Deedo Articles</title>
+    <link>${SITE}/articles/</link>
+    <description>Guides and insights on AI, open houses, lead capture, and workflow automation for real-estate listing agents.</description>
+    <language>en-us</language>
+    <atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />
+    <lastBuildDate>${rfc822(articles[0]?.date || '2026-01-01')}</lastBuildDate>
+${items}
+  </channel>
+</rss>
+`;
+}
+
 // ---------- write everything ------------------------------------------------
 mkdirSync(OUT_DIR, { recursive: true });
 mkdirSync(`${OUT_DIR}/topics`, { recursive: true });
@@ -436,9 +471,10 @@ for (const [tag, list] of Object.entries(tagMap)) {
   writeFileSync(`${OUT_DIR}/topics/${slugify(tag)}/index.html`, topicPage(tag, list));
 }
 writeFileSync('public/sitemap.xml', sitemap());
+writeFileSync(`${OUT_DIR}/rss.xml`, rss());
 
 console.log(
-  `articles: ${articles.length} · topics: ${Object.keys(tagMap).length} · sitemap: ${LANDING_PAGES.length + articles.length + Object.keys(tagMap).length + 1} urls`
+  `articles: ${articles.length} · topics: ${Object.keys(tagMap).length} · sitemap: ${LANDING_PAGES.length + articles.length + Object.keys(tagMap).length + 1} urls · rss: ${articles.length} items`
 );
 if (warnings.length) {
   console.warn(`\n⚠ ${warnings.length} SEO warning(s):`);
