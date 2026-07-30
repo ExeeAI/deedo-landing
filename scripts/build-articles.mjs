@@ -60,6 +60,37 @@ function readingTime(md) {
   return Math.max(1, Math.round(words / 200));
 }
 
+// Reduce inline Markdown to plain text for schema fields (links -> anchor text,
+// drop emphasis/code markers, collapse whitespace).
+function stripMd(s) {
+  return s
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Pull Q&A pairs out of the article's "Frequently Asked Questions" section:
+// the H2 whose text mentions FAQ, then each H3 is a question and the prose
+// beneath it (until the next H3/H2) is the answer. Returns [] if there's none.
+function extractFaq(md) {
+  const items = [];
+  let inFaq = false, q = null, ans = [];
+  const flush = () => { if (q && ans.join(' ').trim()) items.push({ q, a: ans.join(' ') }); q = null; ans = []; };
+  for (const line of md.split('\n')) {
+    const h2 = line.match(/^##\s+(.*)/);
+    if (h2) { flush(); inFaq = /frequently asked questions|\bfaq\b/i.test(h2[1]); continue; }
+    if (!inFaq) continue;
+    const h3 = line.match(/^###\s+(.*)/);
+    if (h3) { flush(); q = h3[1]; continue; }
+    if (q) ans.push(line);
+  }
+  flush();
+  return items.map((it) => ({ q: stripMd(it.q), a: stripMd(it.a) })).filter((it) => it.q && it.a);
+}
+
 // YAML parses an unquoted `date: 2026-07-25` into a Date object, and
 // String(Date) is a locale string, not ISO — which broke prettyDate (NaN) and
 // the schema/sitemap dates. Normalize everything to a clean YYYY-MM-DD string.
@@ -189,6 +220,7 @@ const articles = parsed.map(({ data, content, slug }) => ({
   related: Array.isArray(data.related) ? data.related : null,
   html: marked.parse(content),
   readMins: readingTime(content),
+  faq: extractFaq(content),
 }));
 
 // Newest first.
@@ -312,10 +344,19 @@ function articlePage(a) {
       { '@type': 'ListItem', position: 3, name: a.title, item: url },
     ],
   };
+  const faqSchema = a.faq.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: a.faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  } : null;
 
   return `<!doctype html>
 <html lang="en">
-<head>${head({ title: a.seoTitle || `${a.title} — Deedo`, description: a.description, url, image: a.image, extraMeta, jsonld: [articleSchema, breadcrumbSchema] })}
+<head>${head({ title: a.seoTitle || `${a.title} — Deedo`, description: a.description, url, image: a.image, extraMeta, jsonld: [articleSchema, breadcrumbSchema, faqSchema].filter(Boolean) })}
 </head>
 <body>
   ${header}
