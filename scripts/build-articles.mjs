@@ -99,6 +99,13 @@ function toISODate(v) {
   return String(v).slice(0, 10);
 }
 
+// schema.org datePublished/dateModified and OG article:*_time want a full
+// ISO 8601 datetime *with a timezone*. A bare YYYY-MM-DD is flagged invalid by
+// validators, so anchor it to a fixed time in UTC.
+function toISODateTime(d) {
+  return `${d}T09:00:00+00:00`;
+}
+
 function prettyDate(iso) {
   // Deterministic, locale-independent (no Date locale calls that vary by host).
   const [y, m, d] = iso.split('-').map(Number);
@@ -317,8 +324,8 @@ function articlePage(a) {
   const rel = relatedFor(a);
   const extraMeta =
     `<meta property="og:type" content="article" />\n` +
-    `  <meta property="article:published_time" content="${a.date}" />\n` +
-    `  <meta property="article:modified_time" content="${a.updated}" />\n` +
+    `  <meta property="article:published_time" content="${toISODateTime(a.date)}" />\n` +
+    `  <meta property="article:modified_time" content="${toISODateTime(a.updated)}" />\n` +
     `  <meta property="article:author" content="${esc(a.author)}" />\n` +
     a.tags.map((t) => `  <meta property="article:tag" content="${esc(t)}" />`).join('\n');
 
@@ -327,8 +334,8 @@ function articlePage(a) {
     '@type': 'BlogPosting',
     headline: a.title,
     description: a.description,
-    datePublished: a.date,
-    dateModified: a.updated,
+    datePublished: toISODateTime(a.date),
+    dateModified: toISODateTime(a.updated),
     author: { '@type': 'Organization', name: a.author, url: 'https://deedo.ai' },
     publisher: { '@type': 'Organization', name: 'Deedo', logo: { '@type': 'ImageObject', url: `${SITE}/articles/deedo-logo.svg` } },
     image: `${SITE}${a.image}`,
