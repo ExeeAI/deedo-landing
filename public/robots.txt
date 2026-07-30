@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://land.deedo.ai/sitemap.xml
+
+# RSS feed: https://land.deedo.ai/articles/rss.xml

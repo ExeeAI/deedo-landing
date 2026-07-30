@@ -229,6 +229,7 @@ const footer = `
         <a href="/howitworks2/">How it works</a>
         <a href="https://deedo.ai" target="_blank" rel="noopener">deedo.ai</a>
         <a href="https://app.deedo.ai/privacy-policy" target="_blank" rel="noopener">Privacy</a>
+        <a href="/articles/rss.xml">RSS</a>
       </nav>
     </div>
     <p class="copyright">© ${new Date().getFullYear()} Deedo — AI for Real Estate Listings · United States &amp; Canada</p>
@@ -367,6 +368,7 @@ function indexPage() {
       <p class="eyebrow-static">The Deedo blog</p>
       <h1>Insights for listing agents</h1>
       <p class="lede">Practical guides on AI concierges, open houses, QR codes, and turning listings into verified leads.</p>
+      <p class="feed-link"><a href="/articles/rss.xml">Subscribe via RSS →</a></p>
     </div>
     ${topics.length ? `<nav class="topic-bar" aria-label="Topics">${topics.map((t) => `<a href="/articles/topics/${slugify(t)}/">${esc(t)}</a>`).join('')}</nav>` : ''}
     <div class="card-grid">

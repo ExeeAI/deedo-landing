@@ -108,6 +108,9 @@ article { max-width: var(--measure); margin: 0 auto; }
 .page-head { max-width: var(--measure); margin: 8px auto 40px; }
 .eyebrow-static { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--clay); margin: 0 0 10px; }
 .page-head h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); letter-spacing: -0.02em; margin: 0 0 14px; }
+.feed-link { margin: 0; font-size: 0.9rem; }
+.feed-link a { color: var(--clay); text-decoration: none; font-weight: 600; }
+.feed-link a:hover { text-decoration: underline; }
 .topic-bar { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 0 0 36px; font-size: 12px; }
 .topic-bar a { color: var(--ink-mute); text-decoration: none; text-transform: uppercase; letter-spacing: 0.06em; }
 .topic-bar a:hover { color: var(--clay); }
