@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "articles": "node scripts/build-articles.mjs",
-    "build": "node scripts/build-articles.mjs && tsc -b && vite build",
+    "help": "node scripts/build-help.mjs",
+    "build": "node scripts/build-articles.mjs && node scripts/build-help.mjs && tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit"
   },
